@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal Video Downloader</title><style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Segoe UI,Arial;
+background:linear-gradient(135deg,#020617,#0f172a);
+color:white;
+text-align:center;
+}
+
+.container{
+max-width:750px;
+margin:70px auto;
+padding:20px;
+}
+
+h1{
+font-size:32px;
+margin-bottom:5px;
+}
+
+.subtitle{
+opacity:.7;
+margin-bottom:25px;
+}
+
+.inputbox{
+display:flex;
+gap:10px;
+}
+
+input{
+flex:1;
+padding:15px;
+border-radius:12px;
+border:none;
+outline:none;
+font-size:16px;
+}
+
+button{
+padding:15px 25px;
+background:#22c55e;
+border:none;
+border-radius:12px;
+color:white;
+font-size:17px;
+cursor:pointer;
+transition:.2s;
+}
+
+button:hover{
+background:#16a34a;
+}
+
+.card{
+margin-top:35px;
+background:#111827;
+padding:20px;
+border-radius:16px;
+box-shadow:0 0 25px rgba(0,0,0,.5);
+}
+
+img{
+width:100%;
+border-radius:12px;
+margin-top:15px;
+}
+
+a.download{
+display:block;
+margin-top:12px;
+padding:13px;
+background:#3b82f6;
+border-radius:12px;
+color:white;
+text-decoration:none;
+font-weight:bold;
+}
+
+.loader{
+margin-top:25px;
+font-size:18px;
+}
+</style></head><body><div class="container">
+<h1>Universal Downloader</h1>
+<div class="subtitle">
+YouTube • TikTok • Instagram • Facebook • Douyin • Weibo
+</div><div class="inputbox">
+<input id="url" placeholder="Tempel link video disini...">
+<button onclick="startDownload()">Download</button>
+</div><div id="result"></div>
+</div><script>
+
+function detectPlatform(url){
+if(url.includes("youtu")) return "YouTube";
+if(url.includes("tiktok")) return "TikTok";
+if(url.includes("instagram")) return "Instagram";
+if(url.includes("facebook")||url.includes("fb.watch")) return "Facebook";
+if(url.includes("douyin")) return "Douyin";
+if(url.includes("weibo")) return "Weibo";
+return "Video";
+}
+
+async function startDownload(){
+
+const link=document.getElementById("url").value;
+const result=document.getElementById("result");
+
+if(!link){
+result.innerHTML="<div class='loader'>Masukkan link dulu!</div>";
+return;
+}
+
+result.innerHTML="<div class='loader'>⏳ Mengambil video...</div>";
+
+try{
+
+// PUBLIC API
+const api="https://api.tiklydown.eu.org/api/download?url="+encodeURIComponent(link);
+
+const res=await fetch(api);
+const data=await res.json();
+
+if(!data || !data.video){
+result.innerHTML="<div class='loader'>❌ Video tidak ditemukan / private</div>";
+return;
+}
+
+const platform=detectPlatform(link);
+
+result.innerHTML=`
+<div class="card">
+<h2>${platform}</h2>
+<img src="${data.thumbnail}">
+<a class="download" href="${data.video}" target="_blank">⬇ Download Video (No Watermark)</a>
+${data.audio?`<a class="download" href="${data.audio}" target="_blank">🎵 Download MP3</a>`:''}
+</div>
+`;
+
+}catch(e){
+result.innerHTML="<div class='loader'>⚠️ Server API sedang sibuk / link tidak support</div>";
+}
+}
+
+</script></body>
+</html>
